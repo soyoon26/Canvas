@@ -7,15 +7,15 @@ const ctx = canvas.getContext("2d");
 const dpr = window.devicePixelRatio;
 // console.log(window.devicePixelRatio); 1.25
 
-const canvasWidth = 300;
-const canvasHeight = 300;
+const canvasWidth = innerWidth; //전체화면으로 바꾸기
+const canvasHeight = innerHeight;
 
 canvas.style.width = canvasWidth + "px";
 canvas.style.height = canvasHeight + "px";
 //css에서도 바꿀 수 있지만 직접 바꿔보기
 //화면에 표시될 때 적용
-canvas.width = canvasHeight * dpr;
-canvas.height = canvasWidth * dpr;
+canvas.width = canvasWidth * dpr;
+canvas.height = canvasHeight * dpr;
 //실제 픽셀 크기 설정, 내부적인 그리기 공간
 //fillRect가 직사각형에서 정사각형으로 보여짐
 //100으로 수정하면 더 커짐 - 같은 숫자가 좋기 때문에 변수 설정이 유리함
@@ -39,10 +39,15 @@ ctx.scale(dpr, dpr);
 // ctx.closePath(); //그려지게 됨
 
 class Particle {
-  constructor(x, y, radius) {
+  constructor(x, y, radius, vy) {
     this.x = x;
     this.y = y;
     this.radius = radius;
+    this.vy = vy;
+  }
+  update() {
+    // this.y += 1;
+    this.y += this.vy;
   }
   draw() {
     ctx.beginPath();
@@ -53,16 +58,56 @@ class Particle {
   }
 }
 
-const x = 100;
-const y = 100;
-const radius = 50;
-const particle = new Particle(x, y, radius); //새 인스턴스 만들기
+// const x = 100;
+// const y = 100;
+// const radius = 50;
+// const particle = new Particle(x, y, radius); //새 인스턴스 만들기
+const TOTAL = 20;
+const randomNumBetween = (min, max) => {
+  return Math.random() * (max - min + 1) + min;
+};
+
+let particles = [];
+for (let i = 0; i < TOTAL; i++) {
+  const x = randomNumBetween(0, canvasWidth);
+  const y = randomNumBetween(0, canvasHeight);
+  const radius = randomNumBetween(50, 100);
+  const vy = randomNumBetween(1, 5); //속도 랜덤으로
+  const particle = new Particle(x, y, radius, vy);
+  particles.push(particle);
+}
+
+console.log(particles);
+
+let interval = 1000 / 60; //60fps를 타겟으로 함
+let now, delta;
+let then = Date.now(); // 초기화 시켜줌
 
 function animate() {
   window.requestAnimationFrame(animate);
+  now = Date.now();
+  delta = now - then;
+
+  if (delta < interval) return; // 배경을 지우게 될 것
+
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   //프레임마다 지우고 새롭게 draw
-  particle.draw();
+  //x를 1px 이동시키기
+  // particle.y += 1;
+  // particle.draw();
+  particles.forEach((particle) => {
+    particle.update();
+    particle.draw();
+    if (particle.y - particle.radius > canvasHeight) {
+      particle.y = -particle.radius;
+      particle.x = randomNumBetween(0, canvasWidth); //x값 다시 설정
+      particle.radius = randomNumBetween(50, 100);
+      particle.vy = randomNumBetween(1, 5); //속도 랜덤으로
+    }
+  });
+  then = now - (delta % interval);
 }
 
 animate();
+// 주사율이 다르면 모니터마다 다르게 나올 수 있다.
+//FPS = frame per second, 초당 프레임횟수, 1초에 리퀘스트 애니메이션 프레임을 몇번을 실행을 시킬까
