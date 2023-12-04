@@ -44,9 +44,11 @@ class Particle {
     this.y = y;
     this.radius = radius;
     this.vy = vy;
+    this.acc = 1.03; //1이하의 값은 0으로 수렴-마찰
   }
   update() {
     // this.y += 1;
+    this.vy *= this.acc; //가속도 적용
     this.y += this.vy;
   }
   draw() {
