@@ -15,13 +15,30 @@
         }
 
         canvas {
-            background-color: lightpink;
+            filter: url('#gooey')
+                /* filter: blur(50px) contrast(50); */
+                /* 대비가 쎄져서 흰 바탕에 필터적용보다 선명하게 나옴, 높일수록 구이 이펙트가 잘 됨 */
+                /* 배경색이 있어야 효과는 잘 나온다 ->svg필터 필요 */
+                /* background-color: lightpink; */
         }
     </style>
 </head>
 
 <body>
     <canvas></canvas>
+    <svg>
+        <defs>
+            <!-- 재사용할 수 있도록 요소 정의할 때, 재사용할 수 있는 필터 정의 -->
+            <filter id="gooey">
+                <feGaussianBlur stdDeviation="40" in="SourceGrapic" result="blur1" />
+                <!-- 블러,fe로 시작.st~라는 어트리뷰트 사용, 두개 넣으면 가로블러값,세로블러값 -->
+                <!-- result는 필터 이름 -->
+                <feColorMatrix in="blur1" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 100 -23" />
+                <!-- svg filters 테스타 -->
+                <!-- 컬러에서 적용한 값을 블러에 적용하겠다. -->
+            </filter>
+        </defs>
+    </svg>
     <script type="module" src="./index.js" </body>
 
 </html >
