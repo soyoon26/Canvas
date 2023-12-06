@@ -38,6 +38,48 @@ ctx.scale(dpr, dpr);
 // // ctx.stroke(); //색이 채우지지 않고 그려지게 됨
 // ctx.closePath(); //그려지게 됨
 
+const feGaussianBlur = document.querySelector("feGaussianBlur");
+const feColorMatrix = document.querySelector("feColorMatrix");
+
+//가져오기
+
+const controls = new (function () {
+  this.blurValue = 40;
+  this.alphaChannel = 100;
+  this.alphaOffset = -23;
+  this.acc = 1.03;
+})();
+
+let gui = new dat.GUI();
+
+const f1 = gui.addFolder("Gooey Effect");
+//폴더 만들어서 깔끔하게 담기
+// f1.open() 열려져서 시작으로 만들기
+
+f1.add(controls, "blurValue", 0, 100).onChange((value) => {
+  //최소 최대
+  feGaussianBlur.setAttribute("stdDeviation", value);
+  //블러 테스트 완료
+});
+//string 형태로 넣어주기 바뀐 값 이어주기
+f1.add(controls, "alphaChannel", 1, 200).onChange((value) => {
+  feColorMatrix.setAttribute(
+    "values",
+    `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${value} ${controls.alphaOffset}`
+  );
+});
+f1.add(controls, "alphaOffset", -40, 40).onChange((value) => {
+  feColorMatrix.setAttribute(
+    "values",
+    `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${controls.alphaChannel} ${value}`
+  );
+});
+const f2 = gui.addFolder("Particle Property");
+f2.add(controls, "acc", 1, 1.5, 0.01).onChange((value) => {
+  particles.forEach((particle) => (particle.acc = value));
+});
+//다섯번째 인자는 스텝 , 파티클 프로퍼티도 폴더 안에 넣기
+
 class Particle {
   constructor(x, y, radius, vy) {
     this.x = x;
