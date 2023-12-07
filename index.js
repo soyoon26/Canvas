@@ -7,19 +7,21 @@ const ctx = canvas.getContext("2d");
 const dpr = window.devicePixelRatio;
 // console.log(window.devicePixelRatio); 1.25
 
-const canvasWidth = innerWidth; //전체화면으로 바꾸기
-const canvasHeight = innerHeight;
+// const canvasWidth = innerWidth; //전체화면으로 바꾸기
+// const canvasHeight = innerHeight;
 
-canvas.style.width = canvasWidth + "px";
-canvas.style.height = canvasHeight + "px";
-//css에서도 바꿀 수 있지만 직접 바꿔보기
-//화면에 표시될 때 적용
-canvas.width = canvasWidth * dpr;
-canvas.height = canvasHeight * dpr;
-//실제 픽셀 크기 설정, 내부적인 그리기 공간
-//fillRect가 직사각형에서 정사각형으로 보여짐
-//100으로 수정하면 더 커짐 - 같은 숫자가 좋기 때문에 변수 설정이 유리함
-ctx.scale(dpr, dpr);
+// //리사이즈가 될 때마다 반영이 되어야 함
+
+// canvas.style.width = canvasWidth + "px";
+// canvas.style.height = canvasHeight + "px";
+// //css에서도 바꿀 수 있지만 직접 바꿔보기
+// //화면에 표시될 때 적용
+// canvas.width = canvasWidth * dpr;
+// canvas.height = canvasHeight * dpr;
+// //실제 픽셀 크기 설정, 내부적인 그리기 공간
+// //fillRect가 직사각형에서 정사각형으로 보여짐
+// //100으로 수정하면 더 커짐 - 같은 숫자가 좋기 때문에 변수 설정이 유리함
+// ctx.scale(dpr, dpr);
 // 곱하면 2이상인 곳에서는 더 선명해짐
 
 // ctx.fillRect(10, 10, 50, 50); 네모를 그리는 방법
@@ -37,6 +39,31 @@ ctx.scale(dpr, dpr);
 // ctx.fill(); //색 채우기
 // // ctx.stroke(); //색이 채우지지 않고 그려지게 됨
 // ctx.closePath(); //그려지게 됨
+let canvasWidth;
+let canvasHeight;
+let particles;
+//init안에서 사용할 수 있게 초기화
+function init() {
+  canvasWidth = innerWidth; //전체화면으로 바꾸기
+  canvasHeight = innerHeight;
+
+  canvas.style.width = canvasWidth + "px";
+  canvas.style.height = canvasHeight + "px";
+
+  canvas.width = canvasWidth * dpr;
+  canvas.height = canvasHeight * dpr;
+  ctx.scale(dpr, dpr);
+  particles = [];
+  const TOTAL = canvasWidth / 10;
+  for (let i = 0; i < TOTAL; i++) {
+    const x = randomNumBetween(0, canvasWidth);
+    const y = randomNumBetween(0, canvasHeight);
+    const radius = randomNumBetween(50, 100);
+    const vy = randomNumBetween(1, 5); //속도 랜덤으로
+    const particle = new Particle(x, y, radius, vy);
+    particles.push(particle);
+  }
+}
 
 const feGaussianBlur = document.querySelector("feGaussianBlur");
 const feColorMatrix = document.querySelector("feColorMatrix");
@@ -106,20 +133,20 @@ class Particle {
 // const y = 100;
 // const radius = 50;
 // const particle = new Particle(x, y, radius); //새 인스턴스 만들기
-const TOTAL = 20;
+// const TOTAL = 20;
 const randomNumBetween = (min, max) => {
   return Math.random() * (max - min + 1) + min;
 };
 
-let particles = [];
-for (let i = 0; i < TOTAL; i++) {
-  const x = randomNumBetween(0, canvasWidth);
-  const y = randomNumBetween(0, canvasHeight);
-  const radius = randomNumBetween(50, 100);
-  const vy = randomNumBetween(1, 5); //속도 랜덤으로
-  const particle = new Particle(x, y, radius, vy);
-  particles.push(particle);
-}
+// let particles = [];
+// for (let i = 0; i < TOTAL; i++) {
+//   const x = randomNumBetween(0, canvasWidth);
+//   const y = randomNumBetween(0, canvasHeight);
+//   const radius = randomNumBetween(50, 100);
+//   const vy = randomNumBetween(1, 5); //속도 랜덤으로
+//   const particle = new Particle(x, y, radius, vy);
+//   particles.push(particle);
+// }
 
 console.log(particles);
 
@@ -152,6 +179,15 @@ function animate() {
   then = now - (delta % interval);
 }
 
-animate();
+window.addEventListener("load", () => {
+  init();
+  animate();
+});
+
+window.addEventListener("resize", () => {
+  init();
+});
+
+// animate();
 // 주사율이 다르면 모니터마다 다르게 나올 수 있다.
 //FPS = frame per second, 초당 프레임횟수, 1초에 리퀘스트 애니메이션 프레임을 몇번을 실행을 시킬까
