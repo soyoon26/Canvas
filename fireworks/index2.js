@@ -1,7 +1,7 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 //캔버스 안의 컨텍스트 사용
-const dpr = window.devicePixelRatio;
+const dpr = devicePixelRatio;
 const fps = 60;
 const interval = 1000 / fps;
 let now, delta;
@@ -22,11 +22,12 @@ function init() {
 }
 
 function render() {
-  requestAnimationFrame(render); //화면주사욜마다 적용되기 frame per second
+  requestAnimationFrame(render); //화면주사율마다 적용되기 frame per second
   now = Date.now();
   delta = now - then;
   if (delta < interval) return;
 
+  ctx.fillRect(100, 100, 200, 200); //x,y,w,h
   then = now - (delta % interval);
 }
 
